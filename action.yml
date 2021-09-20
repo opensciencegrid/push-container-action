@@ -16,3 +16,8 @@ inputs:
   docker_password:
     description: 'Docker password obtained from secrets'
     required: true
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v2

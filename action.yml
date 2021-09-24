@@ -1,0 +1,55 @@
+name: 'Push Container Action'
+
+description: 'Push built images to Docker Hub/OSG Harbor'
+
+inputs:
+  repo:
+    description: 'Input string that gets passed along to the docker build args'
+    required: true
+  tag_list:
+    description: 'List of tags that gets passed along to the docker build args'
+    required: true
+    default: '' # set to an empty string
+  docker_username:
+    description: 'Docker username obtained from secrets'
+    required: true
+  docker_password:
+    description: 'Docker password obtained from secrets'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v2
+
+  - name: Generate tag list
+    id: generate-tag-list
+    env:
+      REPO: ${{ inputs.repo }}
+    run: |
+      docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
+      if [ -z "${{ inputs.tag_list }}" ]; then
+        tag_list=$docker_repo:$REPO,$docker_repo:$(date +%Y%m%d-%H%M)
+      else
+        tag_list=${{ inputs.tag_list }}
+      fi
+      echo "::set-output name=taglist::$tag_list"
+    shell: bash
+
+ - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v1
+
+  - name: Log in to Docker Hub
+    uses: docker/login-action@v1
+    with:
+      username: ${{ inputs.docker_username }}
+      password: ${{ inputs.docker_password }}
+
+  - name: Build image
+    uses: docker/build-push-action@v2.2.2
+    with:
+      push: true
+      build-args: BASE_YUM_REPO=${{ inputs.repo }}
+      tags: "${{ steps.generate-tag-list.outputs.taglist }}"
+      cache-from: type=local,src=/tmp/.buildx-cache
+  

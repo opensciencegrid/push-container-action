@@ -10,6 +10,9 @@ inputs:
     description: 'List of tags that gets passed along to the docker build args'
     required: true
     default: '' # set to an empty string
+  registry_name:
+    description: 'Name of the registry action is loging in to'
+    required: true
   docker_username:
     description: 'Docker username obtained from secrets'
     required: true

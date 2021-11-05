@@ -13,10 +13,10 @@ inputs:
   registry_name:
     description: 'Name of the registry action is loging in to'
     required: true
-  docker_username:
+  username:
     description: 'Docker username obtained from secrets'
     required: true
-  docker_password:
+  password:
     description: 'Docker password obtained from secrets'
     required: true
 

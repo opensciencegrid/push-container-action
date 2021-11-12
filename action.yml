@@ -13,10 +13,10 @@ inputs:
   registry_url:
     description: 'Url of the registry action is loging in to'
     required: true
-  username:
+  registry_user:
     description: 'Username of the registry obtained from secrets'
     required: true
-  password:
+  registry_pass:
     description: 'Password of the registry obtained from secrets'
     required: true
 
@@ -51,8 +51,8 @@ runs:
     uses: docker/login-action@v1
     with:
       registry: ${{ inputs.registry_url }}
-      username: ${{ inputs.username }}
-      password: ${{ inputs.password }}
+      username: ${{ inputs.registry_user }}
+      password: ${{ inputs.registry_pass }}
 
   - name: Build image
     uses: docker/build-push-action@v2.2.2

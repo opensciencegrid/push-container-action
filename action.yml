@@ -10,8 +10,8 @@ inputs:
     description: 'List of tags that gets passed along to the docker build args'
     required: true
     default: '' # set to an empty string
-  registry_name:
-    description: 'Name of the registry action is loging in to'
+  registry_url:
+    description: 'Url of the registry action is loging in to'
     required: true
   username:
     description: 'Username of the registry obtained from secrets'
@@ -25,20 +25,6 @@ runs:
   steps:
   - uses: actions/checkout@v2
 
-  - name: Get registry url
-    id: get-registry-url
-    run: |
-      url=''
-      if [ "${{ inputs.registry_name }}" = "Docker Hub" ]; then
-        url='docker.io'
-      elif [ "${{ inputs.registry_name }}" = "OSG Harbor" ]; then
-        url='hub.opensciencegrid.org'
-      else
-        echo -e "\e[31mWARNING: Registry not specified\e[0m"
-      fi
-      echo "::set-output name=resitry_url::$url"
-    shell: bash
-
   - name: Generate tag list
     id: generate-tag-list
     env:
@@ -48,7 +34,7 @@ runs:
         docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
         tag_list=()
         for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
-          tag_list+=("${{ steps.get-registry-url.outputs.resitry_url }}/$docker_repo":"$image_tag")
+          tag_list+=("${{ inputs.resitry_url }}/$docker_repo":"$image_tag")
         done
         IFS=,
         echo "::set-output name=taglist::${tag_list[*]}"
@@ -61,10 +47,10 @@ runs:
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v1
 
-  - name: Log in to ${{ inputs.ragistry_name }}
+  - name: Log in to ${{ inputs.registry_url }}
     uses: docker/login-action@v1
     with:
-      registry: ${{ steps.get-registry-url.outputs.registry_url }}
+      registry: ${{ inputs.registry_url }}
       username: ${{ inputs.username }}
       password: ${{ inputs.password }}
 

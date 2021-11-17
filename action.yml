@@ -34,7 +34,7 @@ runs:
         docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
         tag_list=()
         for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
-          tag_list+=("${{ inputs.resitry_url }}/$docker_repo":"$image_tag")
+          tag_list+=("${{ inputs.registry_url }}/$docker_repo":"$image_tag")
         done
         IFS=,
         echo "::set-output name=taglist::${tag_list[*]}"

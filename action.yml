@@ -39,7 +39,7 @@ runs:
         IFS=,
         echo "::set-output name=taglist::${tag_list[*]}"
       else
-        tag_list=${{ inputs.tag_list }}
+        tag_list=$(echo ${{ inputs.tag_list }} | sed -E "s/([^,]+)/${{ inputs.registry_url }}\/\1/g")
         echo "::set-output name=taglist::$tag_list"
       fi
     shell: bash

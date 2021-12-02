@@ -11,13 +11,13 @@ inputs:
     required: true
     default: '' # set to an empty string
   registry_url:
-    description: 'Url of the registry action is loging in to'
+    description: 'URL of the registry'
     required: true
   registry_user:
-    description: 'Username of the registry obtained from secrets'
+    description: 'Username of the registry'
     required: true
   registry_pass:
-    description: 'Password of the registry obtained from secrets'
+    description: 'Password of the registry'
     required: true
 
 runs:

@@ -44,7 +44,7 @@ runs:
       fi
     shell: bash
 
-  - name: Set up Docker Buildx
+ - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v1
 
   - name: Log in to ${{ inputs.registry_url }}

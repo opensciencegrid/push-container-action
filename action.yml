@@ -7,14 +7,17 @@ inputs:
     description: 'Input string that gets passed along to the docker build args'
     required: true
   tag_list:
-    description: 'List of tags that gets passed along to the docker build args'
-    required: true
+    description: 'List of comma-separated tags that gets passed along to the docker build args'
+    required: false
     default: '' # set to an empty string
-  docker_username:
-    description: 'Docker username obtained from secrets'
+  registry_url:
+    description: 'URL of the registry'
     required: true
-  docker_password:
-    description: 'Docker password obtained from secrets'
+  registry_user:
+    description: 'Username of the registry'
+    required: true
+  registry_pass:
+    description: 'Password of the registry'
     required: true
 
 runs:
@@ -27,23 +30,29 @@ runs:
     env:
       REPO: ${{ inputs.repo }}
     run: |
-      docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
       if [ -z "${{ inputs.tag_list }}" ]; then
-        tag_list=$docker_repo:$REPO,$docker_repo:$(date +%Y%m%d-%H%M)
+        docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
+        tag_list=()
+        for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
+          tag_list+=("${{ inputs.registry_url }}/$docker_repo":"$image_tag")
+        done
+        IFS=,
+        echo "::set-output name=taglist::${tag_list[*]}"
       else
-        tag_list=${{ inputs.tag_list }}
+        tag_list=$(echo ${{ inputs.tag_list }} | sed -E "s/([^,]+)/${{ inputs.registry_url }}\/\1/g")
+        echo "::set-output name=taglist::$tag_list"
       fi
-      echo "::set-output name=taglist::$tag_list"
     shell: bash
 
  - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v1
 
-  - name: Log in to Docker Hub
+  - name: Log in to ${{ inputs.registry_url }}
     uses: docker/login-action@v1
     with:
-      username: ${{ inputs.docker_username }}
-      password: ${{ inputs.docker_password }}
+      registry: ${{ inputs.registry_url }}
+      username: ${{ inputs.registry_user }}
+      password: ${{ inputs.registry_pass }}
 
   - name: Build image
     uses: docker/build-push-action@v2.2.2

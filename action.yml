@@ -3,6 +3,9 @@ name: 'Push Container Action'
 description: 'Push built images to Docker Hub/OSG Harbor'
 
 inputs:
+  osg_series:
+    description: 'OSG release series used to install packages'
+    required: true
   repo:
     description: 'Input string that gets passed along to the docker build args'
     required: true
@@ -29,12 +32,13 @@ runs:
     id: generate-tag-list
     env:
       REPO: ${{ inputs.repo }}
+      OSG_SERIES: ${{ inputs.osg_series }}
     run: |
       if [ -z "${{ inputs.tag_list }}" ]; then
         docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
         tag_list=()
         for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
-          tag_list+=("${{ inputs.registry_url }}/$docker_repo":"$image_tag")
+          tag_list=$docker_repo:$OSG_SERIES-$REPO,$docker_repo:$OSG_SERIES-$REPO-$(date +%Y%m%d-%H%M)
         done
         IFS=,
         echo "::set-output name=taglist::${tag_list[*]}"
@@ -58,7 +62,9 @@ runs:
     uses: docker/build-push-action@v2.2.2
     with:
       push: true
-      build-args: BASE_YUM_REPO=${{ inputs.repo }}
+      build-args: |
+        BASE_YUM_REPO=${{ inputs.repo }}
+        BASE_OSG_SERIES=${{ inputs.osg_series }}
       tags: "${{ steps.generate-tag-list.outputs.taglist }}"
       cache-from: type=local,src=/tmp/.buildx-cache
-  
+

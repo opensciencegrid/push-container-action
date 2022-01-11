@@ -54,7 +54,7 @@ runs:
       path: /tmp/.buildx-cache
       key: ${{ inputs.osg_series}}-${{ inputs.repo }}-buildx-${{ github.sha }}-${{ github.run_id }}
 
- - name: Set up Docker Buildx
+  - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v1
 
   - name: Log in to ${{ inputs.registry_url }}

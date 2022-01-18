@@ -54,8 +54,8 @@ runs:
     run: |
       docker_repo=opensciencegrid/${{ steps.generate-image-name.outputs.image }}
       tag_list=()
-      for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
-          tag_list+=$docker_repo:$image_tag
+      for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$(date +%Y%m%d-%H%M)"; do
+        tag_list+=("$docker_repo":"$image_tag")
       done
       IFS=,
       echo "::set-output name=taglist::${tag_list[*]}"

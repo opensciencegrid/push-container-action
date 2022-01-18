@@ -9,10 +9,6 @@ inputs:
   repo:
     description: 'Input string that gets passed along to the docker build args'
     required: true
-  tag_list:
-    description: 'List of comma-separated tags that gets passed along to the docker build args'
-    required: false
-    default: '' # set to an empty string
   registry_url:
     description: 'URL of the registry'
     required: true
@@ -54,20 +50,15 @@ runs:
     env:
       REPO: ${{ inputs.repo }}
       OSG_SERIES: ${{ inputs.osg_series }}
-    run: |
-      if [ -z "${{ inputs.tag_list }}" ]; then
-        docker_repo=${GITHUB_REPOSITORY/opensciencegrid\/docker-/opensciencegrid/}
-        tag_list=()
-        for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
-          tag_list=$docker_repo:$OSG_SERIES-$REPO,$docker_repo:$OSG_SERIES-$REPO-$(date +%Y%m%d-%H%M)
-        done
-        IFS=,
-        echo "::set-output name=taglist::${tag_list[*]}"
-      else
-        tag_list=$(echo ${{ inputs.tag_list }} | sed -E "s/([^,]+)/${{ inputs.registry_url }}\/\1/g")
-        echo "::set-output name=taglist::$tag_list"
-      fi
     shell: bash
+    run: |
+      docker_repo=opensciencegrid/${{ steps.generate-image-name.outputs.image }}
+      tag_list=()
+      for image_tag in "$REPO" "$REPO-$(date +%Y%m%d-%H%M)"; do
+          tag_list+=$docker_repo:$image_tag
+      done
+      IFS=,
+      echo "::set-output name=taglist::${tag_list[*]}"
 
   - name: Import Docker images from cache
     uses: actions/cache@v2

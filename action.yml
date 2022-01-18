@@ -86,7 +86,7 @@ runs:
       password: ${{ inputs.registry_pass }}
 
   - name: Build image
-    uses: docker/build-push-action@v2.2.2
+    uses: docker/build-push-action@v2.8.0
     with:
       push: true
       context: ${{ inputs.context }}

@@ -25,9 +25,6 @@ inputs:
 
 runs:
   using: "composite"
-  strategy:
-    matrix:
-      deprecated_repo: [release, testing, development]
   steps:
   - uses: actions/checkout@v2
 
@@ -62,9 +59,12 @@ runs:
       for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$(date +%Y%m%d-%H%M)"; do
         tag_list+=("$docker_repo":"$image_tag")
         if [[ $OSG_SERIES == '3.5' ]]; then
-          for deprecated_tag in "$OSG_SERIES-$DEPRECATED_REPO" "$OSG_SERIES-$DEPRECATED_REPO-$(date +%Y%m%d-%H%M)"; do
-            tag_list+=("$docker_repo":"$deprecated_tag")
-          done
+          tag_list+=("$docker_repo":"$OSG_SERIES-release")
+          tag_list+=("$docker_repo":"$OSG_SERIES-testing")
+          tag_list+=("$docker_repo":"$OSG_SERIES-development")
+          tag_list+=("$docker_repo":"$OSG_SERIES-release-$(date +%Y%m%d-%H%M)")
+          tag_list+=("$docker_repo":"$OSG_SERIES-testing-$(date +%Y%m%d-%H%M)")
+          tag_list+=("$docker_repo":"$OSG_SERIES-development-$(date +%Y%m%d-%H%M)")
         fi
       done
       IFS=,

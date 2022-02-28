@@ -55,8 +55,13 @@ runs:
     run: |
       docker_repo="$REGISTRY/opensciencegrid/${{ steps.generate-image-name.outputs.image }}"
       tag_list=()
-      for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$(date +%Y%m%d-%H%M)"; do
+      TIMESTAMP=$(date +%Y%m%d-%H%M)
+      for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do
         tag_list+=("$docker_repo":"$image_tag")
+        if [[ $OSG_SERIES == '3.5' ]]; then
+          tag_list+=("$docker_repo":"$REPO")
+          tag_list+=("$docker_repo":"$REPO-$TIMESTAMP")
+        fi
       done
       IFS=,
       echo "::set-output name=taglist::${tag_list[*]}"

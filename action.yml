@@ -51,20 +51,16 @@ runs:
       REPO: ${{ inputs.repo }}
       OSG_SERIES: ${{ inputs.osg_series }}
       REGISTRY: ${{ inputs.registry_url}}
-      DEPRECATED_REPO: ${{ matrix.deprecated_repo }}
     shell: bash
     run: |
       docker_repo="$REGISTRY/opensciencegrid/${{ steps.generate-image-name.outputs.image }}"
       tag_list=()
-      for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$(date +%Y%m%d-%H%M)"; do
+      TIMESTAMP=$(date +%Y%m%d-%H%M)
+      for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do
         tag_list+=("$docker_repo":"$image_tag")
         if [[ $OSG_SERIES == '3.5' ]]; then
-          tag_list+=("$docker_repo":"$OSG_SERIES-release")
-          tag_list+=("$docker_repo":"$OSG_SERIES-testing")
-          tag_list+=("$docker_repo":"$OSG_SERIES-development")
-          tag_list+=("$docker_repo":"$OSG_SERIES-release-$(date +%Y%m%d-%H%M)")
-          tag_list+=("$docker_repo":"$OSG_SERIES-testing-$(date +%Y%m%d-%H%M)")
-          tag_list+=("$docker_repo":"$OSG_SERIES-development-$(date +%Y%m%d-%H%M)")
+          tag_list+=("$docker_repo":"$REPO")
+          tag_list+=("$docker_repo":"$REPO-$TIMESTAMP")
         fi
       done
       IFS=,

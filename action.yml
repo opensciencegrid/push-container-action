@@ -22,6 +22,10 @@ inputs:
     description: 'Path to container files, including Dockerfile'
     required: false
     default: '.'
+  name:
+    description: 'Name of image'
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -31,7 +35,10 @@ runs:
   - id: generate-image-name
     shell: bash
     run: |
-      if [[ ${{ inputs.context }} == "." ]] || \
+      if [[ -n ${{ inputs.name }} ]]; then
+        # A name was specified
+        IMAGE_NAME=$GITHUB_REPOSITORY_OWNER/${{ inputs.name }}
+      elif [[ ${{ inputs.context }} == "." ]] || \
          [[ ${{ inputs.context }} == "./" ]]; then
          # Try to guess the image name from our docker repo naming conventions
          # E.g., opensciencegrid/docker-frontier-squid

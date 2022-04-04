@@ -23,7 +23,7 @@ inputs:
     required: false
     default: '.'
   name:
-    description: 'Name of image'
+    description: 'Name of image, including the organization (e.g. "opensciencegrid/image")'
     required: false
     default: ''
 
@@ -37,7 +37,7 @@ runs:
     run: |
       if [[ -n ${{ inputs.name }} ]]; then
         # A name was specified
-        IMAGE_NAME=$GITHUB_REPOSITORY_OWNER/${{ inputs.name }}
+        IMAGE_NAME=${{ inputs.name }}
       elif [[ ${{ inputs.context }} == "." ]] || \
          [[ ${{ inputs.context }} == "./" ]]; then
          # Try to guess the image name from our docker repo naming conventions

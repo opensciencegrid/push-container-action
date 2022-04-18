@@ -42,10 +42,12 @@ runs:
          [[ ${{ inputs.context }} == "./" ]]; then
          # Try to guess the image name from our docker repo naming conventions
          # E.g., opensciencegrid/docker-frontier-squid
-         IMAGE_NAME=${GITHUB_REPOSITORY/opensciencegrid\/docker-//}
+         IMAGE_NAME=${GITHUB_REPOSITORY/\/docker-/\/}
       elif [[ -d ${{ inputs.context }} ]]; then
          # Assume that the containing dir is the image name
-         IMAGE_NAME=$(basename ${{ inputs.context }})
+         # TODO: to support more orgs in the opensciencegrid/images repo,
+         # grab the image name from the full context path instead
+         IMAGE_NAME=${GITHUB_REPOSITORY%%/*}/$(basename ${{ inputs.context }})
       else
         echo "${{ inputs.context }} is not a directory"
         exit 1
@@ -60,7 +62,7 @@ runs:
       REGISTRY: ${{ inputs.registry_url}}
     shell: bash
     run: |
-      docker_repo="$REGISTRY/opensciencegrid/${{ steps.generate-image-name.outputs.image }}"
+      docker_repo="$REGISTRY/${{ steps.generate-image-name.outputs.image }}"
       tag_list=()
       TIMESTAMP=$(date +%Y%m%d-%H%M)
       for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do

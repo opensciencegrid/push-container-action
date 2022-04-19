@@ -26,6 +26,13 @@ inputs:
     description: 'Name of image, including the organization (e.g. "opensciencegrid/image")'
     required: false
     default: ''
+  timestamp_tag:
+    description: >-
+      Timestamped tag name (e.g.,
+      "opensciencegrid/osgvo-docker-pilot3.6-release-YYYYMMDD-hhmm")
+      used to pass the Dockerfile as $TIMESTAMP_TAG
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -60,11 +67,17 @@ runs:
       REPO: ${{ inputs.repo }}
       OSG_SERIES: ${{ inputs.osg_series }}
       REGISTRY: ${{ inputs.registry_url}}
+      TIMESTAMP_TAG: ${{ inputs.timestamp_tag }}
     shell: bash
     run: |
       docker_repo="$REGISTRY/${{ steps.generate-image-name.outputs.image }}"
       tag_list=()
-      TIMESTAMP=$(date +%Y%m%d-%H%M)
+      if [[ -n $TIMESTAMP_TAG ]]; then
+        # grab the YYYYMMDD-hhmm timestamp
+        TIMESTAMP=${TIMESTAMP_TAG: -13}
+      else
+        TIMESTAMP=$(date +%Y%m%d-%H%M)
+      fi
       for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do
         tag_list+=("$docker_repo":"$image_tag")
         if [[ $OSG_SERIES == '3.5' ]]; then
@@ -99,6 +112,7 @@ runs:
       build-args: |
         BASE_YUM_REPO=${{ inputs.repo }}
         BASE_OSG_SERIES=${{ inputs.osg_series }}
+        TIMESTAMP_TAG=${{ inputs.timestamp_tag }}
       tags: "${{ steps.generate-tag-list.outputs.taglist }}"
       cache-from: type=local,src=/tmp/.buildx-cache
 

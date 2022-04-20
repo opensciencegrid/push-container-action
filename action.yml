@@ -33,6 +33,10 @@ inputs:
       used to pass the Dockerfile as $TIMESTAMP_TAG
     required: false
     default: ''
+  cache:
+    description: 'Generate a cache per image'
+    required: false
+    default: true
 
 runs:
   using: "composite"

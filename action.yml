@@ -92,11 +92,24 @@ runs:
       IFS=,
       echo "::set-output name=taglist::${tag_list[*]}"
 
+  - id: generate-cache-file
+    shell: bash
+    run: |
+      if [[ ${{ inputs.cache }} == true ]]; then
+        CACHE_FILE="/tmp/.buildx-cache"
+      else
+        CACHE_FILE="/tmp/throwaway"
+      fi
+      echo "::set-output name=cachefile::$CACHE_FILE"
+
   - name: Import Docker images from cache
     uses: actions/cache@v2
     with:
-      path: /tmp/.buildx-cache
+      path: ${{ steps.generate-cache-file.outputs.cachefile }}
       key: ${{ steps.generate-image-name.outputs.image }}_${{ inputs.osg_series}}_${{ inputs.repo }}_buildx_${{ github.sha }}_${{ github.run_id }}
+      restore-keys: |
+        ${{ steps.generate-image-name.outputs.image }}-${{ inputs.osg_series }}-
+        ${{ steps.generate-image-name.outputs.image }}-
 
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v1
@@ -118,5 +131,5 @@ runs:
         BASE_OSG_SERIES=${{ inputs.osg_series }}
         TIMESTAMP_TAG=${{ inputs.timestamp_tag }}
       tags: "${{ steps.generate-tag-list.outputs.taglist }}"
-      cache-from: type=local,src=/tmp/.buildx-cache
+      cache-from: type=local,src=${{ steps.generate-cache-file.outputs.cachefile }}
 

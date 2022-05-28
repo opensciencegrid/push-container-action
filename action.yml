@@ -46,15 +46,15 @@ runs:
   - id: generate-image-name
     shell: bash
     run: |
-      if [[ -n ${{ inputs.name }} ]]; then
+      if [[ -n "${{ inputs.name }}" ]]; then
         # A name was specified
         IMAGE_NAME=${{ inputs.name }}
-      elif [[ ${{ inputs.context }} == "." ]] || \
+      elif [[ "${{ inputs.context }}" == "." ]] || \
          [[ ${{ inputs.context }} == "./" ]]; then
          # Try to guess the image name from our docker repo naming conventions
          # E.g., opensciencegrid/docker-frontier-squid
          IMAGE_NAME=${GITHUB_REPOSITORY/\/docker-/\/}
-      elif [[ -d ${{ inputs.context }} ]]; then
+      elif [[ -d "${{ inputs.context }}" ]]; then
          # Assume that the containing dir is the image name
          # TODO: to support more orgs in the opensciencegrid/images repo,
          # grab the image name from the full context path instead

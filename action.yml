@@ -33,6 +33,10 @@ inputs:
       used to pass the Dockerfile as $TIMESTAMP_TAG
     required: false
     default: ''
+  image_name:
+    description: 'name of docker image'
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -42,7 +46,9 @@ runs:
   - id: generate-image-name
     shell: bash
     run: |
-      if [[ -n "${{ inputs.name }}" ]]; then
+      if  [[ ${{ inputs.image_name }} != '' ]]; then
+         IMAGE_NAME="${{ inputs.image_name }}"
+      elif [[ -n "${{ inputs.name }}" ]]; then
         # A name was specified
         IMAGE_NAME=${{ inputs.name }}
       elif [[ "${{ inputs.context }}" == "." ]] || \

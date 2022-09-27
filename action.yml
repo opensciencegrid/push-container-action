@@ -33,6 +33,10 @@ inputs:
       used to pass the Dockerfile as $TIMESTAMP_TAG
     required: false
     default: ''
+  image_name:
+    description: 'Name of the image to build, e.g. "opensciencegrid/software-base"'
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -42,7 +46,9 @@ runs:
   - id: generate-image-name
     shell: bash
     run: |
-      if [[ -n "${{ inputs.name }}" ]]; then
+      if  [[ -n ${{ inputs.image_name }} ]]; then
+         IMAGE_NAME="${{ inputs.image_name }}"
+      elif [[ -n "${{ inputs.name }}" ]]; then
         # A name was specified
         IMAGE_NAME=${{ inputs.name }}
       elif [[ "${{ inputs.context }}" == "." ]] || \
@@ -56,10 +62,10 @@ runs:
          # grab the image name from the full context path instead
          IMAGE_NAME=${GITHUB_REPOSITORY%%/*}/$(basename ${{ inputs.context }})
       else
-        echo "${{ inputs.context }} is not a directory"
+        echo "No image_name provided and ${{ inputs.context }} is not a directory"
         exit 1
       fi
-      echo "::set-output name=image::$IMAGE_NAME"
+      echo "::set-output name=image::${IMAGE_NAME,,}"
 
   - name: Generate tag list
     id: generate-tag-list

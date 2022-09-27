@@ -65,7 +65,7 @@ runs:
         echo "No image_name provided and ${{ inputs.context }} is not a directory"
         exit 1
       fi
-      echo "::set-output name=image::$IMAGE_NAME"
+      echo "::set-output name=image::${IMAGE_NAME,,}"
 
   - name: Generate tag list
     id: generate-tag-list

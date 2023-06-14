@@ -65,7 +65,7 @@ runs:
         echo "No image_name provided and ${{ inputs.context }} is not a directory"
         exit 1
       fi
-      echo "image=${IMAGE_NAME,,}" >>GITHUB_OUTPUT
+      echo "image=${IMAGE_NAME,,}" >> GITHUB_OUTPUT
   - name: Generate tag list
     id: generate-tag-list
     env:

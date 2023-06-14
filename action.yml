@@ -91,7 +91,7 @@ runs:
         fi
       done
       IFS=,
-      echo "taglist=${tag_list[*]}" >>$GITHUB_OUTPUT
+      echo "taglist=${tag_list[*]}" >> $GITHUB_OUTPUT
 
   - name: Import Docker images from cache
     uses: actions/cache@v2

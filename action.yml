@@ -9,6 +9,13 @@ inputs:
   repo:
     description: 'Input string that gets passed along to the docker build args'
     required: true
+  base_os:
+    description: >-
+      Operating system of the base image, intended for use with the
+      OSG software-base image.  Passed along as the BASE_OS build
+      argument (default: el9)
+    required: false
+    default: el9
   registry_url:
     description: 'URL of the registry'
     required: true
@@ -118,6 +125,7 @@ runs:
       build-args: |
         BASE_YUM_REPO=${{ inputs.repo }}
         BASE_OSG_SERIES=${{ inputs.osg_series }}
+        BASE_OS=${{ inputs.base_os}}
         TIMESTAMP_TAG=${{ inputs.timestamp_tag }}
       tags: "${{ steps.generate-tag-list.outputs.taglist }}"
       cache-from: type=local,src=/tmp/.buildx-cache

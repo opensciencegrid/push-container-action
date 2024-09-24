@@ -44,6 +44,10 @@ inputs:
     description: 'Name of the image to build, e.g. "opensciencegrid/software-base"'
     required: false
     default: ''
+  platform:
+    description: 'Platform of the image to build, e.g. "linux/amd64"'
+    required: false
+    default: 'linux/amd64'
 
 runs:
   using: "composite"
@@ -122,6 +126,7 @@ runs:
     with:
       push: true
       context: ${{ inputs.context }}
+      platforms: ${{ inputs.platform }}
       build-args: |
         BASE_YUM_REPO=${{ inputs.repo }}
         BASE_OSG_SERIES=${{ inputs.osg_series }}

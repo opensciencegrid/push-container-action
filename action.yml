@@ -106,7 +106,7 @@ runs:
       echo "taglist=${tag_list[*]}" >> $GITHUB_OUTPUT
 
   - name: Import Docker images from cache
-    uses: actions/cache@v2
+    uses: actions/cache@v4
     with:
       path: /tmp/.buildx-cache
       key: ${{ steps.generate-image-name.outputs.image }}_${{ inputs.osg_series}}_${{ inputs.repo }}_buildx_${{ github.sha }}_${{ github.run_id }}

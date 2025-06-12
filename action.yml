@@ -49,10 +49,19 @@ inputs:
     required: false
     default: 'linux/amd64'
 
+  clean_before_build:
+    description: >-
+      Whether to undo all unstaged changes to the repo prior to build. May interfere
+      with artifacts generated in previous GHA steps.
+    required: false
+    default: true
+
 runs:
   using: "composite"
   steps:
-  - uses: actions/checkout@v2
+  - uses: actions/checkout@v3
+    with:
+      clean: ${{ inputs.clean_before_build }}
 
   - id: generate-image-name
     shell: bash

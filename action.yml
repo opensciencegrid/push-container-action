@@ -44,6 +44,10 @@ inputs:
     description: 'Name of the image to build, e.g. "opensciencegrid/software-base"'
     required: false
     default: ''
+  image_tag:
+    description: 'Explicit tag for the image. If provided, will overwrite the default <series>-<base-os>-<repo> tag'
+    required: false
+    default: ''
   platform:
     description: 'Platform of the image to build, e.g. "linux/amd64"'
     required: false
@@ -94,23 +98,28 @@ runs:
       OSG_SERIES: ${{ inputs.osg_series }}
       REGISTRY: ${{ inputs.registry_url}}
       TIMESTAMP_TAG: ${{ inputs.timestamp_tag }}
+      TAG_OVERRIDE: ${{ inputs.image_tag }}
     shell: bash
     run: |
       docker_repo="$REGISTRY/${{ steps.generate-image-name.outputs.image }}"
       tag_list=()
-      if [[ -n $TIMESTAMP_TAG ]]; then
-        # grab the YYYYMMDD-hhmm timestamp
-        TIMESTAMP=${TIMESTAMP_TAG: -13}
+      if [[ -n "$TAG_OVERRIDE" ]]; then
+        tag_list+=("$docker_repo":"$TAG_OVERRIDE")
       else
-        TIMESTAMP=$(date +%Y%m%d-%H%M)
-      fi
-      for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do
-        tag_list+=("$docker_repo":"$image_tag")
-        if [[ $OSG_SERIES == '3.5' ]]; then
-          tag_list+=("$docker_repo":"$REPO")
-          tag_list+=("$docker_repo":"$REPO-$TIMESTAMP")
+        if [[ -n $TIMESTAMP_TAG ]]; then
+          # grab the YYYYMMDD-hhmm timestamp
+          TIMESTAMP=${TIMESTAMP_TAG: -13}
+        else
+          TIMESTAMP=$(date +%Y%m%d-%H%M)
         fi
-      done
+        for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do
+          tag_list+=("$docker_repo":"$image_tag")
+          if [[ $OSG_SERIES == '3.5' ]]; then
+            tag_list+=("$docker_repo":"$REPO")
+            tag_list+=("$docker_repo":"$REPO-$TIMESTAMP")
+          fi
+        done
+      fi 
       IFS=,
       echo "taglist=${tag_list[*]}" >> $GITHUB_OUTPUT
 

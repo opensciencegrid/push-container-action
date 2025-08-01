@@ -108,16 +108,12 @@ runs:
       else
         if [[ -n $TIMESTAMP_TAG ]]; then
           # grab the YYYYMMDD-hhmm timestamp
-          TIMESTAMP=${TIMESTAMP_TAG: -13}
+          TIMESTAMP=${TIMESTAMP_TAG}
         else
           TIMESTAMP=$(date +%Y%m%d-%H%M)
         fi
         for image_tag in "$OSG_SERIES-$REPO" "$OSG_SERIES-$REPO-$TIMESTAMP"; do
           tag_list+=("$docker_repo":"$image_tag")
-          if [[ $OSG_SERIES == '3.5' ]]; then
-            tag_list+=("$docker_repo":"$REPO")
-            tag_list+=("$docker_repo":"$REPO-$TIMESTAMP")
-          fi
         done
       fi 
       IFS=,

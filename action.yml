@@ -81,10 +81,13 @@ runs:
          # E.g., opensciencegrid/docker-frontier-squid
          IMAGE_NAME=${GITHUB_REPOSITORY/\/docker-/\/}
       elif [[ -d "${{ inputs.context }}" ]]; then
-         # Assume that the containing dir is the image name
-         # TODO: to support more orgs in the opensciencegrid/images repo,
-         # grab the image name from the full context path instead
-         IMAGE_NAME=${GITHUB_REPOSITORY%%/*}/$(basename ${{ inputs.context }})
+          IMAGE_NAME="${{ inputs.context }}"
+          while [[ "$IMAGE_NAME" == ./* ]]; do
+            IMAGE_NAME=${IMAGE_NAME#./}
+          done
+          while [[ "$IMAGE_NAME" == */ ]]; do
+            IMAGE_NAME=${IMAGE_NAME%/}
+          done
       else
         echo "No image_name provided and ${{ inputs.context }} is not a directory"
         exit 1
